@@ -56,8 +56,14 @@ router.post("/", (req, res) => {
     return res.status(400).json({ error: "Please provide customer name, shipping address and at least one item." });
   }
 
+  // Prevent purchase if total quantity is zero
+  const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+  if (totalQuantity === 0) {
+    return res.status(400).json({ error: "Total quantity of items must be greater than zero." });
+  }
+
   db.beginTransaction((err) => {
-    if (err) return res.status(500).json({ error: "Transaction failed to start" });
+    if (err) return res.status(500).json({ error: "Transaction failed to start." });
 
     const itemIds = items.map(i => i.item_id);
     const placeholders = itemIds.map(() => '?').join(',');
@@ -72,53 +78,66 @@ router.post("/", (req, res) => {
         if (!item) {
           return db.rollback(() => res.status(400).json({ error: `Invalid item ID: ${item_id}` }));
         }
+
+        if (item.stock === 0) {
+          return db.rollback(() =>
+            res.status(400).json({ error: `Item "${item.name}" is out of stock. Cannot be purchased.` })
+          );
+        }
+
         if (item.stock < quantity) {
           return db.rollback(() =>
             res.status(400).json({
-              error: `Not enough stock for item "${item.name}". Available: ${item.stock}, Requested: ${quantity}`
+              error: `Not enough stock for item "${item.name}". Available: ${item.stock}, Requested: ${quantity}`,
             })
           );
         }
       }
 
-      const purchaseQuery = `
-        INSERT INTO purchases (customer_name, shipping_address)
-        VALUES (?, ?)
-      `;
-      db.query(purchaseQuery, [customer_name, shipping_address], (err, result) => {
-        if (err) return db.rollback(() => res.status(500).json({ error: err.message }));
+      // Insert purchase record
+      db.query(
+        `INSERT INTO purchases (customer_name, shipping_address) VALUES (?, ?)`,
+        [customer_name, shipping_address],
+        (err, result) => {
+          if (err) return db.rollback(() => res.status(500).json({ error: err.message }));
 
-        const purchaseId = result.insertId;
-        const purchaseItems = items.map(({ item_id, quantity }) => [purchaseId, item_id, quantity]);
-        const insertPurchaseItemsQuery = `
-          INSERT INTO purchase_items (purchase_id, item_id, quantity)
-          VALUES ?
-        `;
+          const purchaseId = result.insertId;
+          const purchaseItems = items.map(({ item_id, quantity }) => [purchaseId, item_id, quantity]);
 
-        db.query(insertPurchaseItemsQuery, [purchaseItems], (err2) => {
-          if (err2) return db.rollback(() => res.status(500).json({ error: err2.message }));
+          db.query(
+            `INSERT INTO purchase_items (purchase_id, item_id, quantity) VALUES ?`,
+            [purchaseItems],
+            (err2) => {
+              if (err2) return db.rollback(() => res.status(500).json({ error: err2.message }));
 
-          const updateStockPromises = items.map(({ item_id, quantity }) => {
-            return new Promise((resolve, reject) => {
-              db.query(`UPDATE items SET stock = stock - ? WHERE id = ?`, [quantity, item_id], (err3) => {
-                if (err3) reject(err3);
-                else resolve();
+              // Deduct stock
+              const updateStockPromises = items.map(({ item_id, quantity }) => {
+                return new Promise((resolve, reject) => {
+                  db.query(
+                    `UPDATE items SET stock = stock - ? WHERE id = ?`,
+                    [quantity, item_id],
+                    (err3) => {
+                      if (err3) reject(err3);
+                      else resolve();
+                    }
+                  );
+                });
               });
-            });
-          });
 
-          Promise.all(updateStockPromises)
-            .then(() => {
-              db.commit((commitErr) => {
-                if (commitErr) return db.rollback(() => res.status(500).json({ error: commitErr.message }));
-                res.json({ success: true, purchaseId });
-              });
-            })
-            .catch((updateErr) => {
-              db.rollback(() => res.status(500).json({ error: updateErr.message }));
-            });
-        });
-      });
+              Promise.all(updateStockPromises)
+                .then(() => {
+                  db.commit((commitErr) => {
+                    if (commitErr) return db.rollback(() => res.status(500).json({ error: commitErr.message }));
+                    res.json({ success: true, purchaseId });
+                  });
+                })
+                .catch((updateErr) => {
+                  db.rollback(() => res.status(500).json({ error: updateErr.message }));
+                });
+            }
+          );
+        }
+      );
     });
   });
 });

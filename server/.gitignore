@@ -1,0 +1,12 @@
+# Ignore node dependencies
+node_modules/
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Optional: OS/macOS/IDE generated files
+.DS_Store
+.idea/
+.vscode/

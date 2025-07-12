@@ -14,11 +14,11 @@ router.get("/", (req, res) => {
   });
 });
 
-// Add new item
+// Add item with type
 router.post("/", (req, res) => {
-  const { name, description, price, stock } = req.body;
-  const sql = "INSERT INTO items (name, description, price, stock) VALUES (?, ?, ?, ?)";
-  db.query(sql, [name, description, price, stock], (err, result) => {
+  const { name, description, price, stock, type } = req.body;
+  const sql = "INSERT INTO items (name, description, price, stock, type) VALUES (?, ?, ?, ?, ?)";
+  db.query(sql, [name, description, price, stock, type], (err, result) => {
     if (err) {
       console.error("Error adding item:", err);
       return res.status(500).json({ error: "Database insert error" });
@@ -27,11 +27,11 @@ router.post("/", (req, res) => {
   });
 });
 
-// Update item
+// Update item with type
 router.put("/:id", (req, res) => {
-  const { name, description, price, stock } = req.body;
-  const sql = "UPDATE items SET name = ?, description = ?, price = ?, stock = ? WHERE id = ?";
-  db.query(sql, [name, description, price, stock, req.params.id], (err) => {
+  const { name, description, price, stock, type } = req.body;
+  const sql = "UPDATE items SET name = ?, description = ?, price = ?, stock = ?, type = ? WHERE id = ?";
+  db.query(sql, [name, description, price, stock, type, req.params.id], (err) => {
     if (err) {
       console.error("Error updating item:", err);
       return res.status(500).json({ error: "Database update error" });

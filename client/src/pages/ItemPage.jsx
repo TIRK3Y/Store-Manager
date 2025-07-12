@@ -1,16 +1,16 @@
+// src/pages/ItemPage.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "../styles/ItemPage.css";
-import { FaBoxes, FaPlus, FaListUl } from "react-icons/fa";
-
-import Snackbar from "@mui/material/Snackbar";
-import MuiAlert from "@mui/material/Alert";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import IconButton from "@mui/material/IconButton";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import IconButton from "@mui/material/IconButton";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { FormControl, InputLabel, Select } from "@mui/material";
 
 function ItemPage() {
   const [items, setItems] = useState([]);
@@ -19,13 +19,13 @@ function ItemPage() {
     description: "",
     price: "",
     stock: "",
+    type: "General",
     id: null,
   });
-  const [toast, setToast] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
+
+  const itemTypes = ["General", "Electronics", "Grocery", "Clothing", "Stationery"];
+
+  const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
   const [anchorEl, setAnchorEl] = useState(null);
   const [menuItemId, setMenuItemId] = useState(null);
 
@@ -33,13 +33,13 @@ function ItemPage() {
     setToast({ open: true, message, severity });
 
   const resetForm = () =>
-    setForm({ name: "", description: "", price: "", stock: "", id: null });
+    setForm({ name: "", description: "", price: "", stock: "", type: "General", id: null });
 
   const fetchItems = async () => {
     try {
       const res = await axios.get("http://localhost:3001/api/items");
       setItems(res.data);
-    } catch (err) {
+    } catch {
       showToast("Failed to load items", "error");
     }
   };
@@ -55,6 +55,7 @@ function ItemPage() {
       description: form.description?.trim() || "",
       price: parseFloat(form.price),
       stock: parseInt(form.stock),
+      type: form.type,
     };
 
     if (!payload.name || isNaN(payload.price) || isNaN(payload.stock)) {
@@ -65,16 +66,15 @@ function ItemPage() {
     try {
       if (form.id) {
         await axios.put(`http://localhost:3001/api/items/${form.id}`, payload);
-        showToast("Item updated successfully");
+        showToast("Item updated");
       } else {
         await axios.post("http://localhost:3001/api/items", payload);
-        showToast("Item added successfully");
+        showToast("Item added");
       }
       resetForm();
       fetchItems();
-    } catch (err) {
-      console.error("Submit error:", err.response?.data || err.message);
-      showToast("Error submitting item", "error");
+    } catch {
+      showToast("Error saving item", "error");
     }
   };
 
@@ -83,8 +83,8 @@ function ItemPage() {
       await axios.delete(`http://localhost:3001/api/items/${id}`);
       showToast("Item deleted");
       fetchItems();
-    } catch (err) {
-      showToast("Failed to delete item", "error");
+    } catch {
+      showToast("Delete failed", "error");
     }
   };
 
@@ -115,9 +115,7 @@ function ItemPage() {
           <TextField
             label="Description"
             value={form.description}
-            onChange={(e) =>
-              setForm({ ...form, description: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
             size="small"
           />
           <TextField
@@ -136,11 +134,21 @@ function ItemPage() {
             required
             size="small"
           />
-          <Button
-            variant="contained"
-            color={form.id ? "warning" : "primary"}
-            type="submit"
-          >
+          <FormControl size="small" style={{ minWidth: 140 }}>
+            <InputLabel>Type</InputLabel>
+            <Select
+              native
+              value={form.type}
+              onChange={(e) => setForm({ ...form, type: e.target.value })}
+            >
+              {itemTypes.map((type, i) => (
+                <option value={type} key={i}>
+                  {type}
+                </option>
+              ))}
+            </Select>
+          </FormControl>
+          <Button variant="contained" color={form.id ? "warning" : "primary"} type="submit">
             {form.id ? "Update" : "Add"}
           </Button>
         </form>
@@ -152,6 +160,7 @@ function ItemPage() {
             <tr>
               <th>Name</th>
               <th>Description</th>
+              <th>Type</th>
               <th>Price (₹)</th>
               <th>Stock</th>
               <th>Actions</th>
@@ -162,13 +171,11 @@ function ItemPage() {
               <tr key={item.id}>
                 <td>{item.name}</td>
                 <td>{item.description}</td>
+                <td>{item.type || "General"}</td>
                 <td>{item.price}</td>
                 <td>{item.stock}</td>
                 <td>
-                  <IconButton
-                    size="small"
-                    onClick={(e) => handleMenuOpen(e, item.id)}
-                  >
+                  <IconButton size="small" onClick={(e) => handleMenuOpen(e, item.id)}>
                     <MoreVertIcon />
                   </IconButton>
                   <Menu
