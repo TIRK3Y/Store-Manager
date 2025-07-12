@@ -25,8 +25,9 @@ function PurchasePage() {
   const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
 
   useEffect(() => {
-    axios.get("http://localhost:3001/api/items")
-      .then(res => setItems(res.data))
+    axios
+      .get("http://localhost:3001/api/items")
+      .then((res) => setItems(res.data))
       .catch(() => showToast("Failed to load items", "error"));
   }, []);
 
@@ -73,7 +74,10 @@ function PurchasePage() {
 
   return (
     <div className="purchase-page">
-      <Typography variant="h5" className="page-title">Create New Purchase</Typography>
+      <Typography variant="h5" className="page-title">
+        Create New Purchase
+      </Typography>
+
       <form onSubmit={handleSubmit} className="form-grid">
         <div className="form-section">
           <TextField
@@ -100,13 +104,16 @@ function PurchasePage() {
         <div className="table-section">
           <div className="table-header">
             <Typography variant="subtitle1">Items</Typography>
-            <Button variant="outlined" onClick={addItem} size="small">Add Item</Button>
+            <Button variant="outlined" onClick={addItem} size="small">
+              Add Item
+            </Button>
           </div>
 
           <Table size="small">
             <TableHead>
               <TableRow>
                 <TableCell>Item</TableCell>
+                <TableCell>Type</TableCell> {/* New column */}
                 <TableCell>Quantity</TableCell>
                 <TableCell>Price</TableCell>
                 <TableCell>Total</TableCell>
@@ -118,6 +125,7 @@ function PurchasePage() {
                 const full = items.find((i) => i.id === item.item_id);
                 const price = full?.price || 0;
                 const total = price * item.quantity;
+
                 return (
                   <TableRow key={index}>
                     <TableCell>
@@ -128,17 +136,26 @@ function PurchasePage() {
                         fullWidth
                         size="small"
                       >
-                        <MenuItem value="" disabled>Select Item</MenuItem>
-                        {items.map(i => (
-                          <MenuItem key={i.id} value={i.id}>{i.name}</MenuItem>
+                        <MenuItem value="" disabled>
+                          Select Item
+                        </MenuItem>
+                        {items.map((i) => (
+                          <MenuItem key={i.id} value={i.id}>
+                            {i.name}
+                          </MenuItem>
                         ))}
                       </Select>
                     </TableCell>
+
+                    <TableCell>{full?.type || "Unknown"}</TableCell> {/* Type column */}
+
                     <TableCell>
                       <TextField
                         type="number"
                         value={item.quantity}
-                        onChange={(e) => updateItem(index, "quantity", parseInt(e.target.value))}
+                        onChange={(e) =>
+                          updateItem(index, "quantity", parseInt(e.target.value))
+                        }
                         inputProps={{ min: 1 }}
                         size="small"
                       />
@@ -158,9 +175,12 @@ function PurchasePage() {
                 );
               })}
               <TableRow>
-                <TableCell colSpan={3} align="right"><strong>Total</strong></TableCell>
+                <TableCell colSpan={4} align="right">
+                  <strong>Total</strong>
+                </TableCell>
                 <TableCell colSpan={2}>
-                  ₹{selectedItems.reduce((sum, item) => {
+                  ₹
+                  {selectedItems.reduce((sum, item) => {
                     const p = items.find((i) => i.id === item.item_id)?.price || 0;
                     return sum + item.quantity * p;
                   }, 0)}
@@ -170,7 +190,9 @@ function PurchasePage() {
           </Table>
         </div>
 
-        <Button variant="contained" type="submit" className="submit-button">Submit Purchase</Button>
+        <Button variant="contained" type="submit" className="submit-button">
+          Submit Purchase
+        </Button>
       </form>
 
       <Snackbar

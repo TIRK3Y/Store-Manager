@@ -14,10 +14,11 @@ router.get("/", (req, res) => {
   });
 });
 
-// Add item with type
+// Add new item
 router.post("/", (req, res) => {
   const { name, description, price, stock, type } = req.body;
-  const sql = "INSERT INTO items (name, description, price, stock, type) VALUES (?, ?, ?, ?, ?)";
+  const sql =
+    "INSERT INTO items (name, description, price, stock, type) VALUES (?, ?, ?, ?, ?)";
   db.query(sql, [name, description, price, stock, type], (err, result) => {
     if (err) {
       console.error("Error adding item:", err);
@@ -27,28 +28,40 @@ router.post("/", (req, res) => {
   });
 });
 
-// Update item with type
+// Update item
 router.put("/:id", (req, res) => {
   const { name, description, price, stock, type } = req.body;
-  const sql = "UPDATE items SET name = ?, description = ?, price = ?, stock = ?, type = ? WHERE id = ?";
-  db.query(sql, [name, description, price, stock, type, req.params.id], (err) => {
-    if (err) {
-      console.error("Error updating item:", err);
-      return res.status(500).json({ error: "Database update error" });
+  const sql =
+    "UPDATE items SET name = ?, description = ?, price = ?, stock = ?, type = ? WHERE id = ?";
+  db.query(
+    sql,
+    [name, description, price, stock, type, req.params.id],
+    (err) => {
+      if (err) {
+        console.error("Error updating item:", err);
+        return res.status(500).json({ error: "Database update error" });
+      }
+      res.json({ success: true });
     }
-    res.json({ success: true });
-  });
+  );
 });
 
 // Delete item
 router.delete("/:id", (req, res) => {
-  db.query("DELETE FROM items WHERE id = ?", [req.params.id], (err) => {
+  const itemId = req.params.id;
+  db.query("DELETE FROM items WHERE id = ?", [itemId], (err) => {
     if (err) {
+      if (err.code === "ER_ROW_IS_REFERENCED_2") {
+        return res
+          .status(400)
+          .json({ error: "Cannot delete item. It has been used in a purchase." });
+      }
       console.error("Error deleting item:", err);
       return res.status(500).json({ error: "Database delete error" });
     }
     res.json({ success: true });
   });
 });
+
 
 module.exports = router;

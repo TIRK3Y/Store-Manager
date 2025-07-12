@@ -1,4 +1,3 @@
-// src/pages/ItemPage.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "../styles/ItemPage.css";
@@ -24,7 +23,6 @@ function ItemPage() {
   });
 
   const itemTypes = ["General", "Electronics", "Grocery", "Clothing", "Stationery"];
-
   const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
   const [anchorEl, setAnchorEl] = useState(null);
   const [menuItemId, setMenuItemId] = useState(null);
@@ -72,23 +70,30 @@ function ItemPage() {
         showToast("Item added");
       }
       resetForm();
-      fetchItems();
+      fetchItems(); // 🔁 ensures updated data is fetched including type
     } catch {
       showToast("Error saving item", "error");
     }
   };
 
   const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:3001/api/items/${id}`);
-      showToast("Item deleted");
-      fetchItems();
-    } catch {
-      showToast("Delete failed", "error");
-    }
-  };
+  try {
+    await axios.delete(`http://localhost:3001/api/items/${id}`);
+    showToast("Item deleted");
+    fetchItems();
+  } catch (err) {
+    const msg =
+      err.response?.data?.error ||
+      "Delete failed";
+    showToast(msg, "error");
+  }
+};
 
-  const handleEdit = (item) => setForm(item);
+
+  const handleEdit = (item) => {
+  console.log("Editing item:", item); // ✅ Add this for debugging
+  setForm(item);
+};
 
   const handleMenuOpen = (event, id) => {
     setAnchorEl(event.currentTarget);

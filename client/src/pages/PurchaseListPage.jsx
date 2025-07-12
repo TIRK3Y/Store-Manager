@@ -102,25 +102,28 @@ function PurchaseListPage() {
                   <strong>Shipping:</strong> {purchase.shipping_address}
                 </div>
                 <table className="item-table">
-                  <thead>
-                    <tr>
-                      <th>Item</th>
-                      <th>Qty</th>
-                      <th>Price</th>
-                      <th>Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {purchase.items.map((item, index) => (
-                      <tr key={`${purchase.id}-${item.item_id}-${index}`}>
-                        <td>{item.name}</td>
-                        <td>{item.quantity}</td>
-                        <td>{item.price}</td>
-                      </tr>
-                    ))}
+  <thead>
+    <tr>
+      <th>Item</th>
+      <th>Type</th> {/* ✅ Add this */}
+      <th>Qty</th>
+      <th>Price</th>
+      <th>Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    {purchase.items.map((item, index) => (
+      <tr key={`${purchase.id}-${item.item_id}-${index}`}>
+        <td>{item.name}</td>
+        <td>{item.type}</td> {/* ✅ Display item type */}
+        <td>{item.quantity}</td>
+        <td>{item.price}</td>
+        <td>{item.quantity * item.price}</td> {/* ✅ Total */}
+      </tr>
+    ))}
+  </tbody>
+</table>
 
-                  </tbody>
-                </table>
                 <div className="purchase-total">
                   <strong>Total: ₹{total}</strong>
                 </div>
