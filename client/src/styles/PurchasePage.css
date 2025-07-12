@@ -1,0 +1,102 @@
+/* Redesigned and Responsive PurchasePage.css */
+
+.purchase-page {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: bold;
+  text-align: center;
+  color: #222;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.table-section {
+  width: 100%;
+  overflow-x: auto;
+  background: #fafafa;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.table-header .MuiTypography-root {
+  font-size: 16px;
+  font-weight: 600;
+  color: #444;
+}
+
+.MuiTable-root {
+  min-width: 100%;
+  border-collapse: collapse;
+}
+
+.MuiTableCell-root {
+  padding: 10px 14px;
+  font-size: 14px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.submit-button {
+  align-self: flex-end;
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .submit-button {
+    width: 100%;
+  }
+
+  .table-section {
+    padding: 12px;
+  }
+
+  .MuiTableCell-root {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+}
+
+@media (max-width: 576px) {
+  .page-title {
+    font-size: 22px;
+  }
+
+  .table-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}

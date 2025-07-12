@@ -1,0 +1,45 @@
+.purchase-container {
+  padding: 24px;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.divider {
+  margin-bottom: 16px;
+  background-color: #ccc;
+}
+
+.purchase-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.purchase-table th,
+.purchase-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.purchase-table thead tr {
+  background-color: #f5f5f5;
+}
+
+.purchase-table tr:nth-child(even) {
+  background-color: #fcfcfc;
+}
+
+.purchase-table tr:hover {
+  background-color: #f0f0f0;
+}
+
+.header-row th {
+  font-weight: bold;
+  color: #333;
+}
