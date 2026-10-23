@@ -1,74 +1,37 @@
-# Store Management Web App
+# Store Manager
 
-A full-stack web application built using **React**, **Node.js**, and **MySQL** that allows a small store to manage inventory, purchases, and stock efficiently. The app enables creating and updating items, making multi-item purchases, tracking stock levels, and viewing purchase history.
+A full-stack inventory and purchase management application for a small store. The React front end lets staff maintain an item catalogue, record multi-item purchases and browse purchase history, while an Express API persists the data in MySQL and validates stock levels inside a database transaction.
 
 ## Features
 
-### Item Management
-- Add, edit, and delete items
-- Support for item type/category (e.g., Electronics, Grocery)
-- Real-time stock tracking
+- Item management: create, edit and delete items with name, description, price, stock and category
+- Deletion protection for items that are referenced by existing purchases
+- Multi-item purchases with customer name and shipping address
+- Stock validation that rejects out-of-stock or insufficient quantities, and automatic stock deduction
+- Purchase creation wrapped in a MySQL transaction with rollback on failure
+- Purchase history with search by customer name, date filtering and pagination
+- Snackbar notifications for success and error feedback
 
-### Purchases
-- Create purchases with multiple items
-- Shipping address and customer details
-- Stock validation (prevents overselling)
-- Automatic stock deduction upon purchase
+## Tech stack
 
-### Purchase History
-- View all past purchases
-- Includes customer name, date, items, and totals
-- Filter by customer, item name, or date
-- Item type and availability shown per purchase
+| Layer | Technology |
+| --- | --- |
+| Front end | React 19, Vite 7, React Router 7, Material UI 7, Axios, react-icons |
+| Back end | Node.js, Express 5, cors |
+| Database | MySQL (via the `mysql` driver) |
 
-### Backend (Node.js + Express)
-- RESTful API for all operations
-- Data validation and error handling
-- JOIN queries to fetch item and purchase details
-- Uses MySQL database with normalized schema
-
-### Database (MySQL)
-- Tables: `items`, `purchases`, `purchase_items`
-- Proper foreign keys and relational mapping
-- JOINs used for fetching related data (e.g., item types with purchases)
-
-### Frontend (React + MUI)
-- Material UI for professional, responsive UI
-- Toast notifications for feedback
-- Dark mode compatible
-- Clean, compact form and table layout
-- Pagination and filtering
-
-
-
-## Technologies Used
-
-|----------------|---------------------------------|
-| Tech           | Purpose                         |
-|----------------|---------------------------------|
-| React          | Frontend UI                     |
-| Material UI    | UI Components                   |
-| Axios          | API Calls                       |
-| Node.js        | Backend server                  |
-| Express        | Routing & API                   |
-| MySQL          | Relational database             |
-| Toast Alerts   | Notifications & Feedback        |
-|----------------|---------------------------------|
-
-## Setup Instructions
+## Getting started
 
 ### Prerequisites
-- Node.js & npm
-- MySQL Server
-- Git
 
-### Backend Setup
-```bash
-cd server
-npm install
-node server.js
+- Node.js and npm
+- A running MySQL server
 
+### Database setup
 
+Create a database named `store_db` and the following tables:
+
+```sql
 CREATE TABLE items (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
@@ -93,5 +56,60 @@ CREATE TABLE purchase_items (
   FOREIGN KEY (purchase_id) REFERENCES purchases(id),
   FOREIGN KEY (item_id) REFERENCES items(id)
 );
+```
 
+The connection settings (host, user, password, database) are defined directly in `server/database.js`. Update them to match your MySQL installation.
 
+### Run the API
+
+```bash
+cd server
+npm install
+node server.js
+```
+
+The API listens on http://localhost:3001.
+
+### Run the client
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+Open the URL printed by Vite (http://localhost:5173 by default).
+
+## API
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| GET | `/api/items` | List all items |
+| POST | `/api/items` | Create an item |
+| PUT | `/api/items/:id` | Update an item |
+| DELETE | `/api/items/:id` | Delete an item |
+| GET | `/api/purchases` | List purchases with their line items |
+| POST | `/api/purchases` | Create a purchase and deduct stock |
+
+## Project structure
+
+```
+client/
+  src/
+    App.jsx           Routes and navigation
+    pages/            Items, new purchase and purchase history pages
+    styles/           Page styles
+server/
+  server.js           Express app (port 3001)
+  database.js         MySQL connection
+  routes/             Item and purchase routes
+```
+
+## Notes
+
+- The client calls the API at the hard-coded address `http://localhost:3001`.
+- Database credentials are hard-coded in `server/database.js`; move them to environment variables before deploying.
+
+## License
+
+No license has been specified for this project.
