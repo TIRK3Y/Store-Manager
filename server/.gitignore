@@ -1,6 +1,9 @@
 # Ignore node dependencies
 node_modules/
 
+# Local environment settings
+.env
+
 # Log files
 npm-debug.log*
 yarn-debug.log*

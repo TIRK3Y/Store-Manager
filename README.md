@@ -58,7 +58,7 @@ CREATE TABLE purchase_items (
 );
 ```
 
-The connection settings (host, user, password, database) are defined directly in `server/database.js`. Update them to match your MySQL installation.
+Connection settings are read from environment variables: `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD` and `DB_NAME`. Copy `server/.env.example` to `server/.env`, fill in your values, and start the server with `node --env-file=.env server.js` (Node.js 20.6 or later), or set the variables in your shell. The `.env` file is ignored by git.
 
 ### Run the API
 
@@ -108,7 +108,6 @@ server/
 ## Notes
 
 - The client calls the API at the hard-coded address `http://localhost:3001`.
-- Database credentials are hard-coded in `server/database.js`; move them to environment variables before deploying.
 
 ## License
 
